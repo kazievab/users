@@ -1,0 +1,12 @@
+*~
+*.zip
+*.xls
+*.tar
+*.txt
+*.out
+*.log
+log/
+tmp/
+local/
+conf/mysql.conf
+core
