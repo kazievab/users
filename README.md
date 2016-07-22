@@ -2,6 +2,7 @@
 A sample project written in Mojolicious.
 
 INSTALLATION
+
 1. git clone git://github.com/kazievab/users.git users
 2. cd users
 3. install: 
