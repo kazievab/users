@@ -1,0 +1,69 @@
+% layout 'default';
+% title $title;
+% content_for 'header' => $list_header;
+
+<p>
+<a href=<%= url_for 'users_add' %>><button class="btn btn-primary" type="button">Добавить</button></a>
+<form class="form-search" method='POST' action=<%= url_for 'list_search' %>>
+  <input type="text" class="input-medium search-query" name="search" placeholder="Введите значение" value=<%= stash 'search' %>>
+  <button type="submit" class="btn btn-primary">Найти</button>
+</form>
+</p>
+
+%if (flash 'success') {
+	<div class="alert alert-success">
+  		<%= flash 'success' %>
+	</div>
+%}
+
+<div calss="table-responsive">
+	 <table class="table table-hover" width="100">
+		 <thead>
+			 <tr>
+				 <th>ID</th>
+				 <th>Имя</th>
+				 <th>Email</th>
+				 <th>Деньги</th>
+				 <th>Обновлен</th>
+				 <th>Создан</th>
+				 <th>Изменить</th>
+				 <th>Удалить</th>
+			 </tr>
+		 </thead>
+		 %if ($hashes != undef) {
+			 <% if (my @arr = @$hashes ) { %>
+			 	% foreach my $elt (@arr) {
+			 	<tbody>
+				 	<td><%=$elt->{user_id}%></td>
+					<td>
+					<%=$elt->{name}%>
+					<% if (my $dir = stash 'dir' ) { %>
+						<% if ( -e "$dir/public/img/$elt->{user_id}.jpg"){ %>
+							<img src="img/<%=$elt->{user_id}%>.jpg" width = "50" height = "50" class="img-rounded pull-right" alt="Cinque Terre">
+						%}
+						<% if ( -e "$dir/public/img/$elt->{user_id}.png"){ %>
+							<img src="img/<%=$elt->{user_id}%>.png" width = "50" height = "50" class="img-rounded pull-right" alt="Cinque Terre">
+						%}
+					%}
+					</td>
+				 	<td><%=$elt->{email}%></td>
+				 	<td><%=$elt->{sum}%></td>
+				 	<td><%=$elt->{updated}%></td>
+				 	<td><%=$elt->{created}%></td>
+				 	<td>
+				 		<a href=<%= url_for('users_edit',   ID => $elt->{user_id})  %>>E</a>
+				 	</td>
+				 	<td>
+				 		<a href=<%= url_for('users_delete', ID => $elt->{user_id})  %>>X</a>
+				 	</td>
+				 %}
+				 </tbody>
+	  		% }
+	  	%}
+	 </table>
+</div>
+<%if(my $info = stash 'info') { %>
+	<div class="alert alert-info">
+		<center><%= $info %></center>
+	</div>
+<% } %>

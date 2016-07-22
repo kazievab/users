@@ -1,0 +1,47 @@
+% layout 'default';
+
+
+<center>
+% if(flash 'error') {
+  <div class="alert alert-danger">
+      <%= flash 'error' %>
+  </div>
+%}
+<br /><br />
+<form class="form-horizontal" role="form"  method='POST' action='<%= url_for "reg_create" %>'>
+  <div class="form-group">
+    <label for="inputLogin" class="col-sm-3 control-label">Логин:  <span style="color: #BA0000; font-family: Verdana; font-size: 16px; font-weight: bold;"> *</span></label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="login" id="inputLogin" placeholder="Логин">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword" class="col-sm-3 control-label">Пароль:  <span style="color: #BA0000; font-family: Verdana; font-size: 16px; font-weight: bold;"> *</span></label>
+    <div class="col-sm-6">
+      <input type="password" class="form-control" name="password" id="inputPassword" placeholder="Пароль">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword2" class="col-sm-3 control-label">Подтвердите пароль: <span style="color: #BA0000; font-family: Verdana; font-size: 16px; font-weight: bold;"> *</span></label>
+    <div class="col-sm-6">
+      <input type="password" class="form-control" name="password2" id="inputPassword2" placeholder="Повторите пароль">
+    </div>
+  </div>
+      %if (flash 'err_pass_compare') {
+        <div class="alert alert-danger">
+            <%= flash 'err_pass_compare' %>
+        </div>
+        %}
+      %if (flash 'err_fields') {
+        <div class="alert alert-danger">
+            <%= flash 'err_fields' %>
+        </div>
+        %}
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-8">
+      <button type="submit" class="btn btn-default">Зарегистрироваться</button>
+    </div>
+  </div>
+</form>
+<br /><br />
+</center>
