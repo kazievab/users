@@ -8,5 +8,4 @@
 log/
 tmp/
 local/
-conf/mysql.conf
 core
