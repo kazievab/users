@@ -22,6 +22,7 @@ sub register {
 	$app->helper(
 			logout => sub {
         		my $c = shift;
+        		
         		delete $c->session->{'auth_id'};
         		delete $c->session->{'login'};
     		});
@@ -33,12 +34,14 @@ sub register {
         		
     			$home->detect;
     			$home =~ s/script//;
+
     			return $home;
     		});
 
 	$app->helper(
 			search_user => sub {
 				my ($c, $hash, $arr) = @_;
+
         		foreach my $key (@$arr) {
 					push @$hash, $key if $key->{user_id};
 				}
@@ -47,18 +50,21 @@ sub register {
 	$app->helper(
 			list_render => sub {
 				my $c = shift;
+
         		my %list_renderer = (
 			        template    => 'users/list',
 					format 	    => 'html',
 					list_header => 'Список пользователей',
 					title 	    => 'Список пользователей',
 			     );
+
         		return %list_renderer;
     		});
 
 	$app->helper(
 			add_render => sub {
 				my $c = shift;
+
         		my %add_renderer = (
 			        template    => 'users/form',
 					format 	    => 'html',
@@ -67,12 +73,14 @@ sub register {
 					link_form	=> 'users_add_form',
 			        button      => 'Добавить',
 			     );
+
         		return %add_renderer;
     		});
 
 	$app->helper(
 			edit_render => sub {
 				my $c = shift;
+
         		my %edit_renderer = (
 			        template    => 'users/form',
 					format 	    => 'html',
@@ -80,12 +88,14 @@ sub register {
 					title 	    => 'Редактировать пользователя',
 			        button      => 'Сохранить',
 			     );
+
         		return %edit_renderer;
     		});
 
 	$app->helper(
 			get_cur_date => sub {
 			    my ($c, $format) = @_;
+
 			    my ($sec, $min, $hour, $day, $month, $year) = localtime();
 			    my %hash = ("Y" => $year + 1900, "M" => $month + 1, "D" => $day, 
 			                "h" => $hour, "m" => $min, "s" => $sec);
@@ -94,12 +104,14 @@ sub register {
 			        my $count =()= $format =~ /[$key.]/g;
 			        $format =~ s/($key*$key)/${\(sprintf("%0${count}d", $hash{$key}))}/g;
 			    }
+
 			    return $format;
 			});
 
 	$app->helper(
 			delete_img => sub {
 			    my ($c, $format) = @_;
+
 			    if( -e $format ) {
 			        unlink $format;
 			    }
@@ -107,7 +119,8 @@ sub register {
 
 	$app->helper(
 			init_part_validation => sub {
-			    my ($c, $password, $password2, $money, $email, $filename) = @_;
+			    my ($c, $password, $password2, $money, $email, $filename, $name) = @_;
+			    my $bool = 1;
 
 			    my $validator = Mojolicious::Validator->new;
 			    my $validation= Mojolicious::Validator::Validation->new(validator => $validator);
@@ -117,23 +130,50 @@ sub register {
 			            money     => $money,
 			            email     => $email,
 			            filename  => $filename,
+			            name 	  => $name,
 			    });
-			    $validation->required('money')    ->like(qr/^\d+$/)        if length($money)     > 0;
-			    $validation->required('filename') ->like(qr/.[png|jpg]$/i) if length($filename)  > 0;
-    			$validation->required('password') ->size(6, 50)            if length($password)  > 0;
-    			$validation->required('password2')->equal_to('password')   if length($password2) > 0;
-			    return $validation;
+
+			    $bool &&= $validation->required('money')	->like(qr/^\d+$/)	   ->is_valid  if length($money)      > 0;
+			    $bool &&= $validation->required('filename') ->like(qr/\.(png|jpg)$/)->is_valid if length($filename)   > 0;
+    			$bool &&= $validation->required('password') ->size(6,22)           ->is_valid  if length($password)   > 0; 
+    			$bool &&= $validation->required('password2')->equal_to('password') ->is_valid  if length($password2)  > 0;
+
+			    return ($bool, $validation);
 			});
 
 	$app->helper(
 			form_not_valid => sub {
-			    my ($c, $name, $email) = @_;
+			    my ($c, $error, $name, $email) = @_;
+
         		my %not_valid_renderer = (
-			        error      =>'Неверные значения!',
+			        error      => $error,
             		firstName  => $name,
             		inputEmail => $email,
 			     );
+
         		return %not_valid_renderer;
+			});
+
+	$app->helper(
+			trim_spaces => sub {
+			    my ($c, $string) = @_;
+
+			    $string =~ s/^\s+//;
+			    $string =~ s/\s+$//;
+
+			    return $string;
+			});
+
+	$app->helper(
+			is_valid => sub {
+				my ($c, $validation, @array) = @_;
+			    my $bool = 1;
+
+			    foreach my $n (@array) {
+			    	$bool &&= $validation->is_valid($n);
+			    }
+
+			    return $bool;
 			});
 }
 

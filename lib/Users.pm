@@ -22,7 +22,10 @@ sub startup {
     $r ->route('/logout')          ->via('get') ->name('auths_delete')	 ->to('auths#delete');
     $r ->route('/signup')		   ->via('get') ->name('reg_form') 		 ->to('auths#reg_form');
     $r ->route('/signup')		   ->via('post')->name('reg_create')	 ->to('auths#reg');
-	
+	$r ->route('/api/users')	   ->via('get') ->name('api_list')		 ->to('show#show_list',    namespace => 'Users::Api');
+
+	$r ->route('/api/users/:user', user => qr/([\s\S]*)/)->via('get')->name('api_list')->to('show#show_element', namespace => 'Users::Api');
+
 	my $rn = $r->under->to('auths#check');
 	$rn->route('/users')		   ->via('get') ->name('list_show')      ->to('list#show'); 
 	$rn->route('/users')		   ->via('post')->name('list_search')	 ->to('list#search'); 

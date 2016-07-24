@@ -7,6 +7,7 @@ use utf8;
 use base 'Mojo::Upload';
 use base 'Mojolicious::Controller';
 use Digest::MD5 qw(md5_hex);
+use Encode qw(encode_utf8);
 
 sub add {
 	my $self = shift;
@@ -25,22 +26,37 @@ sub add_user{
     my $file      = $self->req->upload('image');
     my $filename  = $file->filename;
 
-    my $validation = $self->init_part_validation($password, $password2, $money, $email, $filename);
-    $validation->required('name') ->size(2, 30);
-    $validation->required('email')->like(qr/^[a-z0-9.-_]+\@[a-z0-9.-]+$/i);
 
-    unless ($validation->is_valid) {
-        $self->flash($self->form_not_valid)->redirect_to('users_add');
+    my ($bool, $validation) = $self->init_part_validation($password, $password2, $money, $email, $filename, $name);
+    print $bool, "re\n";
+    $bool &&= $validation->required('name') ->size(2, 30)                   ->is_valid;
+    print $bool, "re\n";
+    $bool &&= $validation->required('email')->like(qr/[^@]+@[^@\.]+\.[^@]+/)->is_valid;
+    print $bool, "re\n";
+
+    my $check_email = Users::Model::User->select( { email => $email } )->hash();
+
+    if ( length($check_email->{ email }) > 0 ) {
+         $self->flash(
+            $self->form_not_valid('Такой email уже кем-то занят! Попробуйте ввести другой!', $name, $email)
+        )->redirect_to('users_add');
+        return;
     }
 
-    if ($validation->is_valid) {
+    unless ($bool) {
+        $self->flash(
+            $self->form_not_valid('Неверные значения!', $name, $email)
+        )->redirect_to('users_add');
+    }
+
+    if ($bool) {
         my $time = $self->get_cur_date("YYYY-MM-DD hh:mm:ss");
 
         my %user = (
-            password => md5_hex($password),
-            email    => $email,
-            name     => $name,
-            sum      => $money,
+            password => $self->trim_spaces(md5_hex(encode_utf8($password))),
+            email    => $self->trim_spaces($email),
+            name     => $self->trim_spaces($name),
+            sum      => $self->trim_spaces($money),
             updated  => $time,
             created  => $time
          );
@@ -80,24 +96,35 @@ sub edit_user{
     my $file      = $self->req->upload('image');
     my $filename  = $file->filename;
 
-    my $validation = $self->init_part_validation($password, $password2, $money, $email, $filename);
-    $validation->required('name') ->size(2, 30)                            if length($name)  > 0;
-    $validation->required('email')->like(qr/^[a-z0-9.-_]+\@[a-z0-9.-]+$/i) if length($email) > 0;
-    
-    unless ($validation->is_valid) {
-        $self->flash($self->form_not_valid)->redirect_to('users_edit');
+    my ($bool, $validation) = $self->init_part_validation($password, $password2, $money, $email, $filename, $name);
+    $bool &&= $validation->required('name') ->size(2, 30)                   ->is_valid if length($name)  > 0;
+    $bool &&= $validation->required('email')->like(qr/[^@]+@[^@\.]+\.[^@]+/)->is_valid if length($email) > 0;
+
+    my $check_email = Users::Model::User->select( { email => $email } )->hash();
+
+    if ( (length($check_email->{ email }) > 0) && ($check_email->{ user_id } ne $before) ) {
+         $self->flash(
+            $self->form_not_valid('Такой email уже кем-то занят! Попробуйте ввести другой!', $name, $email)
+        )->redirect_to('users_edit');
+        return;
     }
 
-    if ($validation->is_valid) {
+    unless ($bool) {
+        $self->flash(
+            $self->form_not_valid('Неверные значения!', $name, $email)
+        )->redirect_to('users_edit');
+    }
+
+    if ($bool) {
         my $time = $self->get_cur_date("YYYY-MM-DD hh:mm:ss");
 
         my %user = ();
 
-        $user{ password } = md5_hex($password) if length($password) > 0;
-        $user{ email }    = $email             if length($email)    > 0;
-        $user{ name }     = $name              if length($name)     > 0;
-        $user{ sum }      = $money             if length($money)    > 0;
-        $user{ updated }  = $time              if length($time)     > 0;
+        $user{ password } = $self->trim_spaces(md5_hex(encode_utf8($password))) if length($password) > 0;
+        $user{ email }    = $self->trim_spaces($email)                          if length($email)    > 0;
+        $user{ name }     = $self->trim_spaces($name)                           if length($name)     > 0;
+        $user{ sum }      = $self->trim_spaces($money)                          if length($money)    > 0;
+        $user{ updated }  = $time                                               if length($time)     > 0;
 
         my %where = (
             user_id  => $before,

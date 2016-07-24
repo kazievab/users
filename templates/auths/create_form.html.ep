@@ -2,15 +2,19 @@
 
 
 <center>
-% if(flash 'success') {
-  <div class="alert alert-success">
-      <%= flash 'success' %>
-  </div>
-%}
-% if(flash 'error') {
-  <div class="alert alert-danger">
-      <%= flash 'error' %>
-  </div>
+%if((flash 'success') || (flash 'error')) {
+  % if(flash 'success') {
+    <div class="alert alert-success">
+        <%= flash 'success' %>
+    </div>
+  %}
+  % if(flash 'error') {
+    <div class="alert alert-danger">
+        <%= flash 'error' %>
+    </div>
+  %}
+%} else {
+  <br /><br /><br /><br />
 %}
 <br /><br />
 <form class="form-horizontal" role="form"  method='POST' action='<%= url_for "auths_form" %>'>
