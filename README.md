@@ -1,14 +1,21 @@
-# users
-A sample project written in Mojolicious.
+# Users DB Manager using Mojolicious
 
-INSTALLATION
+A project using Mojolicious framework no lite, Bootstrap, SQLite
 
-1. git clone git://github.com/kazievab/users.git users
-2. cd users
-3. install: 
-      cpanm Mojolicious;
-      cpanm DBIx::Simple;
-      cpanm SQL::Abstract;
-      cpanm DBD::SQLite;
-4. cd users/script
-5. morbo users
+# Install
+
+	git clone git://github.com/kazievab/users.git users
+	cd users
+
+
+Install the Carton package manager. Carton will install all dependencies
+to the local/ sub-directory.
+
+	curl -L cpanmin.us | perl - Carton
+or
+	cpanm Carton
+and
+	carton install
+
+# Run
+	carton exec morbo script/users
