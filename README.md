@@ -11,11 +11,11 @@ A project using Mojolicious framework no lite, Bootstrap, SQLite
 Install the Carton package manager. Carton will install all dependencies
 to the local/ sub-directory.
 
-	curl -L cpanmin.us | perl - Carton
-or
-	cpanm Carton
-and
-	carton install
+		curl -L cpanmin.us | perl - Carton
+ 	or
+		cpanm Carton
+ 	and
+		carton install
 
 # Run
 	carton exec morbo script/users
